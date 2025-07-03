@@ -352,15 +352,17 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
 
 (defconst kotlin-ts-mode--treesit-indent-rules
   '((kotlin
-     ((node-is "}") parent-bol 0)
+     ((node-is "}") standalone-parent 0)
      ((node-is ")") parent-bol 0)
      ((parent-is "anonymous_initializer") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "statements") parent-bol 0)
      ((parent-is "catch_block") parent-bol kotlin-ts-mode-indent-offset)
-     ((parent-is "class_body") parent-bol kotlin-ts-mode-indent-offset)
+     ((parent-is "class_declaration") column-0 kotlin-ts-mode-indent-offset)
+     ((parent-is "enum_class_body") parent-bol kotlin-ts-mode-indent-offset)
+     ((parent-is "class_body") standalone-parent kotlin-ts-mode-indent-offset)
      ((parent-is "control_structure_body") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "finally_block") parent-bol kotlin-ts-mode-indent-offset)
-     ((parent-is "function_body") parent-bol kotlin-ts-mode-indent-offset)
+     ((parent-is "function_body") standalone-parent kotlin-ts-mode-indent-offset)
      ((parent-is "function_value_parameters") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "lambda_literal") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "primary_constructor") parent-bol kotlin-ts-mode-indent-offset)
@@ -368,6 +370,7 @@ and END mark the region to be fontified.  OVERRIDE is the override flag."
      ((parent-is "try_expression") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "value_arguments") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "when_expression") parent-bol kotlin-ts-mode-indent-offset)
+     ((parent-is "property_declaration") parent-bol kotlin-ts-mode-indent-offset)
      ((parent-is "comment") parent-bol 1)
      ((node-is "navigation_suffix") parent-bol kotlin-ts-mode-indent-offset)
      (catch-all prev-sibling 0))))
@@ -584,6 +587,11 @@ Current rules are:
     ;; Imenu
     (setq-local imenu-create-index-function #'kotlin-ts-mode--imenu)
     (setq-local which-func-functions nil)
+
+    ;; Navigation.
+    (setq-local treesit-defun-type-regexp
+                (regexp-opt '("function_declaration"
+                              "class_declaration")))
 
     ;; Find Files
     (setq-local find-sibling-rules kotlin-ts-mode--find-sibling-rules)
